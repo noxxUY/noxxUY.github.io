@@ -3,7 +3,7 @@ import { defineConfig, fontProviders } from 'astro/config'
 import tailwindcss from '@tailwindcss/vite'
 import sitemap from '@astrojs/sitemap'
 
-// No host yet. This assumes the domain root, so there is no `base`; a subpath needs one.
+// GitHub Pages user site: served from the domain root, so no `base`.
 export default defineConfig({
   site: 'https://noxxuy.github.io',
   output: 'static',

@@ -67,7 +67,7 @@ export const profile = {
     github: 'https://github.com/noxxUY',
     linkedin: '',
     site: 'https://noxxuy.github.io',
-    siteSource: 'https://github.com/noxxUY/portfolio',
+    siteSource: 'https://github.com/noxxUY/noxxUY.github.io',
   },
   now: {
     en: 'Now: building the IMG Editor.',

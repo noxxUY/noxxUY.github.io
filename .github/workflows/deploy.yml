@@ -1,8 +1,8 @@
 name: Deploy to GitHub Pages
 
-# Manual only for now: this repo holds the source, and the site has no domain yet.
-# Add `push: { branches: [main] }` back once Pages (or another host) is set up.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
