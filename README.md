@@ -5,6 +5,9 @@ dark themes, and an ATS-friendly CV at `/cv/` and `/es/cv/` that is also printed
 
 The hero renders a random GTA model (RenderWare DFF) with three.js, parsed in the browser.
 
+How that viewer works is in [docs/viewer.md](docs/viewer.md), and the language switch in
+[docs/i18n.md](docs/i18n.md).
+
 ## Scripts
 
 ```bash
