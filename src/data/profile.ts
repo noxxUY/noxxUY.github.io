@@ -69,9 +69,11 @@ export const profile = {
     site: 'https://noxxuy.github.io',
     siteSource: 'https://github.com/noxxUY/noxxUY.github.io',
   },
+  // Shown until the GitHub fetch answers, and whenever it fails. Keep it evergreen: the
+  // live line names the repo of your last push, this one has to stay true on any day.
   now: {
-    en: 'Now: building the IMG Editor.',
-    es: 'Ahora: construyendo el IMG Editor.',
+    en: 'Now: building browser tools.',
+    es: 'Ahora: construyendo herramientas.',
   } satisfies L,
 
   projects: [

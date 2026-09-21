@@ -138,8 +138,10 @@ function startLive() {
       return
     }
     const repo = ev.type === 'PushEvent' ? (ev.repo?.name?.split('/')[1] ?? '') : ''
-    const name = projects[repo]
-    if (!name) return
+    if (!repo) return
+    // Anything outside the listed projects still shows, under its repo name, so the line
+    // never keeps naming a project that was finished months ago.
+    const name = projects[repo] || repo
     const line = (template?: string) => (template ? template.replace('{name}', name) : '')
     const en = line(nowEl.dataset.templateEn)
     const es = line(nowEl.dataset.templateEs)
