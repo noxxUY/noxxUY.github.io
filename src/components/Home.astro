@@ -1,0 +1,574 @@
+---
+import '../styles/home.css'
+import { Picture } from 'astro:assets'
+import type { ImageMetadata } from 'astro'
+import { getRelativeLocaleUrl } from 'astro:i18n'
+import Base from '../layouts/Base.astro'
+import T from './T.astro'
+import { profile, displayName, cvFile, constantFor, skillText, type L } from '../data/profile'
+import { hexdump, termsIn } from '../lib/dump'
+import { both, locales, t as translate, ui, type Locale } from '../i18n/ui'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+const t = translate(locale)
+
+const shots = import.meta.glob<{ default: ImageMetadata }>('../assets/projects/*.{png,jpg,jpeg,webp}', { eager: true })
+const shotFor = (file?: string) => (file ? shots[`../assets/projects/${file}`]?.default : undefined)
+const lightShotFor = (file?: string) => shotFor(file?.replace(/\.(png|jpe?g|webp)$/, '-light.$1'))
+
+const bare = (url: string) => url.replace(/^https?:\/\//, '').replace(/\/+$/, '')
+const pad = (n: number) => String(n).padStart(2, '0')
+const uniq = (xs: string[]) => Array.from(new Set(xs))
+const pair = (f: (l: Locale) => string): L => ({ en: f('en'), es: f('es') })
+
+const allFormats = uniq(profile.projects.flatMap((p) => p.formats))
+const allTech = uniq(profile.projects.flatMap((p) => p.stack))
+const skillCount = profile.skills.reduce((n, g) => n + g.items.length, 0)
+
+const sections = [
+  { id: 'identity', label: both('nav.identity') },
+  { id: 'work', label: both('nav.work') },
+  { id: 'stack', label: both('nav.stack') },
+  { id: 'contact', label: both('nav.contact') },
+]
+
+const specs: { k: L; v: L; mono: boolean }[] = [
+  { k: both('spec.alias'), v: { en: profile.alias, es: profile.alias }, mono: true },
+  { k: both('spec.handle'), v: { en: profile.handle, es: profile.handle }, mono: true },
+  { k: both('spec.role'), v: profile.role, mono: false },
+  { k: both('spec.location'), v: pair((l) => `${profile.location[l]} (${profile.countryCode})`), mono: false },
+  { k: both('spec.timezone'), v: { en: profile.timezone, es: profile.timezone }, mono: true },
+  { k: both('spec.status'), v: profile.availability, mono: false },
+]
+
+const metrics = [
+  { n: pad(profile.projects.length), k: both('home.metricProjects') },
+  { n: pad(allFormats.length), k: both('home.metricFormats') },
+  { n: pad(allTech.length), k: both('home.metricTech') },
+  { n: pad(skillCount), k: both('home.metricSkills') },
+]
+
+const techNames = (l: Locale) =>
+  uniq([...profile.skills.flatMap((g) => g.items.map((i) => skillText(i)[l])), ...allTech])
+const dumps = locales.map((l) => {
+  const terms = termsIn(profile.roleLine[l], techNames(l))
+  return { locale: l, terms, rows: hexdump(profile.roleLine[l], terms) }
+})
+
+const liveLabels = (l: Locale) =>
+  JSON.stringify({
+    pushOne: ui[l]['live.pushOne'],
+    pushMany: ui[l]['live.pushMany'],
+    prOpen: ui[l]['live.prOpen'],
+    prClosed: ui[l]['live.prClosed'],
+    created: ui[l]['live.created'],
+    released: ui[l]['live.released'],
+    issue: ui[l]['live.issue'],
+    starred: ui[l]['live.starred'],
+    forked: ui[l]['live.forked'],
+    active: ui[l]['live.active'],
+  })
+
+const heroStrings = JSON.stringify({ tris: both('hero.tris') })
+
+const repoNames = JSON.stringify(
+  Object.fromEntries(profile.projects.map((p) => [bare(p.source).split('/').pop() ?? '', p.name])),
+)
+---
+
+<Base
+  locale={locale}
+  title={t('meta.title')}
+  description={t('meta.description')}
+  sections={sections}
+  bilingual
+  titles={both('meta.title')}
+>
+  <div class="shell">
+    <section id="identity" class="sec" data-section aria-labelledby="identity-title">
+      <div class="bar">
+        <span class="bar-l">
+          <span class="dot" aria-hidden="true"></span>
+          <span
+            data-now
+            data-template-en={ui.en['home.nowBuilding']}
+            data-template-es={ui.es['home.nowBuilding']}
+            data-projects={repoNames}
+          >
+            <T text={profile.now} />
+          </span>
+        </span>
+        <span
+          class="bar-live"
+          data-live
+          data-handle={profile.handle}
+          data-labels-en={liveLabels('en')}
+          data-labels-es={liveLabels('es')}
+          data-swap
+          data-title-en={ui.en['live.label']}
+          data-title-es={ui.es['live.label']}
+          title={t('live.label')}
+          hidden></span>
+        <span class="bar-r">{profile.timezone}<span data-clock="America/Montevideo"></span></span>
+      </div>
+
+      <div class="id-grid">
+        <div class="id-main">
+          <div class="id-text">
+          <p class="sec-mark" id="identity-title">
+            <span class="sec-n">00</span>
+            <T text={both('nav.identity')} />
+          </p>
+          <h1 class="display anim-fade-up">{displayName}</h1>
+          <p class="deck anim-fade-up delay-1"><T text={profile.roleLine} /></p>
+          <p class="lede anim-fade-up delay-2"><T text={profile.summary} /></p>
+          <p class="acts anim-fade-up delay-3">
+            <a class="btn btn-solid" href={profile.links.github}>
+              <svg class="gh" viewBox="0 0 16 16" width="15" height="15" fill="currentColor" aria-hidden="true">
+                <path
+                  d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.4 7.4 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+                ></path>
+              </svg>
+              GitHub
+            </a>
+            <a
+              class="btn"
+              href={cvFile(locale)}
+              download
+              data-swap
+              data-href-en={cvFile('en')}
+              data-href-es={cvFile('es')}
+            >
+              <T text={both('hero.cv')} />
+            </a>
+            <a
+              class="btn"
+              href={getRelativeLocaleUrl(locale, 'cv')}
+              data-swap
+              data-href-en={getRelativeLocaleUrl('en', 'cv')}
+              data-href-es={getRelativeLocaleUrl('es', 'cv')}
+            >
+              <T text={both('hero.cvOnline')} />
+            </a>
+          </p>
+          </div>
+
+          <figure class="slot" data-hero data-state="idle" data-strings={heroStrings}>
+            <figcaption class="slot-head">
+              <span class="slot-k"><T text={both('hero.viewer')} /></span>
+            </figcaption>
+
+            <canvas class="slot-canvas" aria-hidden="true"></canvas>
+
+            <p class="slot-status" data-hero-status aria-live="polite">
+              <T text={both('hero.placeholder')} />
+            </p>
+          </figure>
+
+          {
+            dumps.map((d) => (
+              <figure class="dump" data-dump data-l={d.locale} lang={d.locale} aria-hidden="true">
+                <figcaption class="dump-head">
+                  <span>xxd -c 16</span>
+                  <span class="dump-terms">
+                    {ui[d.locale]['home.dumpMatches']}: {d.terms.join(' · ')}
+                  </span>
+                </figcaption>
+                <div class="dump-rows">
+                  {d.rows.map((row) => (
+                    <div class="drow">
+                      <span class="doff">{row.off}</span>
+                      <span class="dhex">
+                        {row.cells.map((c) => <span class={c.hit ? 'hit' : undefined} data-b={c.id}>{c.hex}</span>)}
+                      </span>
+                      <span class="dasc">
+                        {row.cells.map((c) => <span class={c.hit ? 'hit' : undefined} data-b={c.id}>{c.chr}</span>)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <p class="dump-foot">{ui[d.locale]['home.dumpFoot']}</p>
+              </figure>
+            ))
+          }
+        </div>
+
+        <div class="spec-col anim-fade-up delay-2">
+          <dl class="spec">
+            {
+              specs.map((s) => (
+                <div class="spec-row">
+                  <dt>
+                    <T text={s.k} />
+                  </dt>
+                  <dd class={s.mono ? 'is-mono' : ''}>
+                    <T text={s.v} />
+                  </dd>
+                </div>
+              ))
+            }
+            <div class="spec-row">
+              <dt><T text={both('spec.site')} /></dt>
+              <dd class="is-mono"><a href={profile.links.site}>{bare(profile.links.site)}</a></dd>
+            </div>
+            <div class="spec-row">
+              <dt><T text={both('spec.source')} /></dt>
+              <dd class="is-mono"><a href={profile.links.siteSource}>{bare(profile.links.siteSource)}</a></dd>
+            </div>
+            {
+              profile.email && (
+                <div class="spec-row">
+                  <dt>
+                    <T text={both('spec.email')} />
+                  </dt>
+                  <dd class="is-mono">
+                    <a href={`mailto:${profile.email}`}>{profile.email}</a>
+                  </dd>
+                </div>
+              )
+            }
+            {
+              profile.links.linkedin && (
+                <div class="spec-row">
+                  <dt>LinkedIn</dt>
+                  <dd class="is-mono">
+                    <a href={profile.links.linkedin}>{bare(profile.links.linkedin)}</a>
+                  </dd>
+                </div>
+              )
+            }
+          </dl>
+
+          <div class="spec-tail">
+            <p class="spec-tail-k"><T text={both('home.formats')} /></p>
+            <p class="spec-tail-v">
+              {
+                allFormats.map((f) => {
+                  const c = constantFor(f)
+                  const value = c?.bytes || c?.hint
+                  return (
+                    <span class={value ? 'chip has-bytes' : 'chip'}>
+                      {f}
+                      {value && (
+                        <span class="chip-bytes" aria-hidden="true">
+                          {value}
+                        </span>
+                      )}
+                    </span>
+                  )
+                })
+              }
+            </p>
+          </div>
+
+          <div class="consts">
+            <p class="spec-tail-k"><T text={both('home.firstBytes')} /></p>
+            <ul class="const-list">
+              {
+                profile.formatConstants.map((c) => (
+                  <li>
+                    <span class="cfmt">{c.fmt}</span>
+                    <span class="cbytes">
+                      {c.bytes ? (
+                        c.bytes.split(' ').map((b) => <span>{b}</span>)
+                      ) : (
+                        <span class="chint">{c.hint}</span>
+                      )}
+                      {c.ascii && <em>{c.ascii}</em>}
+                    </span>
+                    <span class="cnote">
+                      <T text={c.note} />
+                    </span>
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <ul class="metrics">
+        {
+          metrics.map((m) => (
+            <li data-reveal>
+              <span class="metric-n" data-count>{m.n}</span>
+              <span class="metric-k">
+                <T text={m.k} />
+              </span>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section id="work" class="sec" data-section aria-labelledby="work-title">
+      <div class="sec-head">
+        <h2 class="sec-mark" id="work-title">
+          <span class="sec-n">01</span>
+          <T text={both('nav.work')} />
+        </h2>
+        <p class="sec-meta">
+          {pad(profile.projects.length)}
+          <T text={both('home.projects')} /> &middot; <T text={both('home.workMeta')} />
+        </p>
+      </div>
+
+      {
+        profile.projects.map((p, i) => {
+          const shot = shotFor(p.image)
+          const lightShot = lightShotFor(p.image)
+          const alt = p.imageAlt ?? { en: p.name, es: p.name }
+          return (
+            <article class="panel" data-reveal>
+              <div class="panel-bar">
+                <span class="panel-id">P{pad(i + 1)}</span>
+                <span class="panel-host">{p.live ? bare(p.live) : bare(p.source)}</span>
+                <span class="panel-date">
+                  <T text={p.date} />
+                </span>
+              </div>
+
+              <div class="panel-grid">
+                <div class="port">
+                  {shot ? (
+                    <a class="port-link" href={p.live ?? p.source}>
+                      {lightShot && (
+                        <Picture
+                          class="shot shot-light"
+                          src={lightShot}
+                          formats={['avif', 'webp']}
+                          widths={[560, 760, 1120]}
+                          sizes="(min-width: 1000px) 680px, 100vw"
+                          alt={alt[locale]}
+                          data-swap
+                          data-alt-en={alt.en}
+                          data-alt-es={alt.es}
+                          loading={i === 0 ? 'eager' : 'lazy'}
+                          decoding="async"
+                        />
+                      )}
+                      <Picture
+                        class={lightShot ? 'shot shot-dark' : 'shot'}
+                        src={shot}
+                        formats={['avif', 'webp']}
+                        widths={[560, 760, 1120]}
+                        sizes="(min-width: 1000px) 680px, 100vw"
+                        alt={lightShot ? '' : alt[locale]}
+                        data-swap={lightShot ? undefined : true}
+                        data-alt-en={lightShot ? undefined : alt.en}
+                        data-alt-es={lightShot ? undefined : alt.es}
+                        loading={i === 0 ? 'eager' : 'lazy'}
+                        decoding="async"
+                      />
+                      <span class="port-tag" aria-hidden="true">
+                        <T text={both('home.open')} /> ↗
+                      </span>
+                    </a>
+                  ) : (
+                    <div class="port-empty">
+                      <p class="port-empty-k">
+                        <T text={both('home.noPreview')} />
+                      </p>
+                      <p class="port-empty-v">
+                        <T text={p.tagline} />
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div class="panel-body">
+                  <h3 class="panel-title">{p.name}</h3>
+                  <p class="panel-tag">
+                    <T text={p.tagline} />
+                  </p>
+                  <p class="panel-desc">
+                    <T text={p.description} />
+                  </p>
+
+                  <dl class="rows">
+                    <div class="row">
+                      <dt>
+                        <T text={both('projects.formats')} />
+                      </dt>
+                      <dd class="chips">
+                        {p.formats.map((f) => {
+                          const c = constantFor(f)
+                          const value = c?.bytes || c?.hint
+                          return (
+                            <span class={value ? 'chip has-bytes' : 'chip'}>
+                              {f}
+                              {value && (
+                                <span class="chip-bytes" aria-hidden="true">
+                                  {value}
+                                </span>
+                              )}
+                            </span>
+                          )
+                        })}
+                      </dd>
+                    </div>
+                    <div class="row">
+                      <dt>
+                        <T text={both('projects.stack')} />
+                      </dt>
+                      <dd class="is-mono">{p.stack.join('  ·  ')}</dd>
+                    </div>
+                  </dl>
+
+                  <ol class="notes">
+                    {p.highlights.map((h, hi) => (
+                      <li>
+                        <span class="note-n">{pad(hi + 1)}</span>
+                        <span class="note-t">
+                          <T text={h} />
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
+
+                  <p class="acts">
+                    {p.live && (
+                      <a class="btn btn-solid" href={p.live}>
+                        <T text={both('projects.live')} /> <span aria-hidden="true">↗</span>
+                      </a>
+                    )}
+                    <a class="btn" href={p.source}>
+                      <T text={both('projects.source')} /> <span aria-hidden="true">↗</span>
+                    </a>
+                  </p>
+                </div>
+              </div>
+            </article>
+          )
+        })
+      }
+    </section>
+
+    <section id="stack" class="sec" data-section aria-labelledby="stack-title">
+      <div class="sec-head">
+        <h2 class="sec-mark" id="stack-title">
+          <span class="sec-n">02</span>
+          <T text={both('nav.stack')} />
+        </h2>
+        <p class="sec-meta">
+          {pad(skillCount)}
+          <T text={both('home.stackEntries')} /> &middot; {pad(profile.skills.length)}
+          <T text={both('home.stackGroups')} />
+        </p>
+      </div>
+
+      <div class="cols">
+        {
+          profile.skills.map((g, i) => (
+            <div class="col" data-reveal>
+              <h3 class="col-title">
+                <span class="col-n" aria-hidden="true">
+                  {pad(i + 1)}
+                </span>
+                <T text={g.group} />
+                <span class="col-c" aria-hidden="true">
+                  {pad(g.items.length)}
+                </span>
+              </h3>
+              <ul class="col-list">
+                {g.items.map((it) => (
+                  <li>
+                    <T text={skillText(it)} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section id="contact" class="sec" data-section aria-labelledby="contact-title">
+      <div class="sec-head">
+        <h2 class="sec-mark" id="contact-title">
+          <span class="sec-n">03</span>
+          <T text={both('nav.contact')} />
+        </h2>
+        <p class="sec-meta"><T text={profile.location} /> &middot; {profile.timezone}</p>
+      </div>
+
+      <div class="cta">
+        <p class="cta-t"><T text={profile.availability} /></p>
+        <a class="cta-a" href={profile.links.github}>{bare(profile.links.github)} <span aria-hidden="true">↗</span></a>
+      </div>
+
+      <dl class="rows rows-wide">
+        <div class="row">
+          <dt>GitHub</dt>
+          <dd class="is-mono"><a href={profile.links.github}>{bare(profile.links.github)}</a></dd>
+        </div>
+        {
+          profile.email && (
+            <div class="row">
+              <dt>
+                <T text={both('contact.email')} />
+              </dt>
+              <dd class="is-mono">
+                <a href={`mailto:${profile.email}`}>{profile.email}</a>
+              </dd>
+            </div>
+          )
+        }
+        {
+          profile.links.linkedin && (
+            <div class="row">
+              <dt>LinkedIn</dt>
+              <dd class="is-mono">
+                <a href={profile.links.linkedin}>{bare(profile.links.linkedin)}</a>
+              </dd>
+            </div>
+          )
+        }
+        <div class="row">
+          <dt><T text={both('contact.cv')} /></dt>
+          <dd class="cv-links">
+            <a href={cvFile('en')} download><T text={both('contact.cvEn')} /></a>
+            <a href={cvFile('es')} download><T text={both('contact.cvEs')} /></a>
+            <a
+              href={getRelativeLocaleUrl(locale, 'cv')}
+              data-swap
+              data-href-en={getRelativeLocaleUrl('en', 'cv')}
+              data-href-es={getRelativeLocaleUrl('es', 'cv')}
+            >
+              <T text={both('contact.cvOnline')} />
+            </a>
+          </dd>
+        </div>
+        <div class="row">
+          <dt><T text={both('spec.site')} /></dt>
+          <dd class="is-mono"><a href={profile.links.site}>{bare(profile.links.site)}</a></dd>
+        </div>
+        <div class="row">
+          <dt><T text={both('spec.source')} /></dt>
+          <dd class="is-mono"><a href={profile.links.siteSource}>{bare(profile.links.siteSource)}</a></dd>
+        </div>
+      </dl>
+    </section>
+  </div>
+</Base>
+
+<script>
+  import { initHome, destroyHome } from '../lib/home'
+  import { initLang, destroyLang } from '../lib/lang'
+  import { initHero, destroyHero } from '../lib/hero'
+
+  document.addEventListener('astro:page-load', () => {
+    initLang()
+    initHome()
+    initHero()
+  })
+  document.addEventListener('astro:before-swap', () => {
+    destroyLang()
+    destroyHome()
+    destroyHero()
+  })
+</script>

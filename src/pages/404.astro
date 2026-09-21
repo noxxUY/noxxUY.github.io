@@ -1,0 +1,30 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n'
+import Base from '../layouts/Base.astro'
+import { t as translate } from '../i18n/ui'
+
+const en = translate('en')
+const es = translate('es')
+---
+
+<Base locale="en" title={en('404.title')} description={en('404.body')} path="404" noindex>
+  <section class="frame section">
+    <h1 class="display anim-fade-up">404</h1>
+    <p class="measure text anim-fade-up delay-1">
+      {en('404.title')}. {en('404.body')} <a href={getRelativeLocaleUrl('en', '')}>{en('404.home')}</a>
+    </p>
+    <p class="measure text anim-fade-up delay-2" lang="es">
+      {es('404.title')}. {es('404.body')} <a href={getRelativeLocaleUrl('es', '')}>{es('404.home')}</a>
+    </p>
+  </section>
+</Base>
+
+<style>
+  .text {
+    margin-top: 20px;
+  }
+  .text + .text {
+    margin-top: 10px;
+    color: var(--muted);
+  }
+</style>

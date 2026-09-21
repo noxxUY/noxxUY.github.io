@@ -1,0 +1,164 @@
+---
+import { getRelativeLocaleUrl } from 'astro:i18n'
+import Base from '../layouts/Base.astro'
+import CvDocument from './cv/CvDocument.astro'
+import { profile, displayName, cvFile } from '../data/profile'
+import { t as translate, type Locale } from '../i18n/ui'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+const t = translate(locale)
+const title = `${t('cv.title')}, ${displayName}, ${profile.role[locale]}`
+const meta = [
+  `${profile.location[locale]} (${profile.countryCode})`,
+  profile.timezone,
+  profile.availability[locale],
+]
+---
+
+<Base locale={locale} title={title} description={profile.summary[locale]} path="cv">
+  <div class="cv-shell">
+    <div class="cv-bar no-print">
+      <p class="cv-bar-l">
+        <span class="cv-bar-k">{t('cv.title')}</span>
+        <span class="cv-bar-v">{meta.join(' · ')}</span>
+      </p>
+      <p class="cv-acts">
+        <a class="btn" href={getRelativeLocaleUrl(locale, '')}>
+          <span class="arrow" aria-hidden="true">←</span>
+          {t('cv.back')}
+        </a>
+        <a class="btn btn-solid" href={cvFile(locale)} download>{t('cv.download')}</a>
+      </p>
+    </div>
+
+    <CvDocument locale={locale} />
+  </div>
+</Base>
+
+<style>
+  .cv-shell {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--shell);
+    margin-inline: auto;
+    border-inline: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    transition: border-color 220ms ease;
+  }
+
+  .cv-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px 20px;
+    padding: 10px var(--pad);
+    border-bottom: 1px solid var(--line);
+    background: var(--fill);
+    font-family: var(--font-jetbrains-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+  }
+  .cv-bar-l {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+    min-width: 0;
+  }
+  .cv-bar-k {
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--accent-text);
+  }
+  .cv-bar-v {
+    color: var(--faint);
+  }
+
+  .cv-acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    height: 34px;
+    padding: 0 13px;
+    border: 1px solid var(--line-strong);
+    color: var(--text);
+    text-decoration: none;
+    font-family: var(--font-archivo);
+    font-size: 0.8235rem;
+    font-weight: 500;
+    letter-spacing: 0;
+    line-height: 1;
+    transition:
+      border-color 160ms ease,
+      background-color 160ms ease,
+      color 160ms ease;
+  }
+  .btn:hover {
+    border-color: var(--text);
+    background: var(--fill-soft);
+  }
+  .btn-solid {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--bg);
+  }
+  .btn-solid:hover {
+    background: transparent;
+    color: var(--text);
+  }
+  .arrow {
+    flex: none;
+    color: var(--faint);
+    transition: color 160ms ease;
+  }
+  .btn:hover .arrow {
+    color: var(--accent-text);
+  }
+  .btn-solid .arrow {
+    color: inherit;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .btn {
+      transition:
+        border-color 160ms ease,
+        background-color 160ms ease,
+        color 160ms ease,
+        transform 160ms var(--ease);
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+    .btn:active {
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 559px) {
+    .cv-bar {
+      gap: 10px;
+    }
+    .cv-bar-l,
+    .cv-acts {
+      flex: 1 1 100%;
+    }
+  }
+
+  @media print {
+    .cv-shell {
+      max-width: none;
+      border: 0;
+      --fill: transparent;
+      --fill-soft: transparent;
+    }
+  }
+</style>

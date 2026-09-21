@@ -1,0 +1,65 @@
+---
+import '../styles/global.css'
+import { Font } from 'astro:assets'
+import { ClientRouter } from 'astro:transitions'
+import { t as translate, type Locale } from '../i18n/ui'
+import type { L } from '../data/profile'
+import Head from '../components/Head.astro'
+import TopBar from '../components/TopBar.astro'
+import SiteFooter from '../components/SiteFooter.astro'
+
+interface Props {
+  locale: Locale
+  title: string
+  description: string
+  path?: string
+  noindex?: boolean
+  sections?: { id: string; label: L }[]
+  bilingual?: boolean
+  titles?: L
+}
+
+const { locale, title, description, path = '', noindex = false, sections, bilingual = false, titles } = Astro.props
+const t = translate(locale)
+---
+
+<!doctype html>
+<html
+  lang={locale}
+  data-bilingual={bilingual ? 'true' : undefined}
+  data-title-en={titles?.en}
+  data-title-es={titles?.es}
+>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+<script is:inline>
+      try {
+        var theme = localStorage.getItem('noxx-portfolio-theme')
+        if (theme !== 'light' && theme !== 'dark') {
+          theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        document.documentElement.dataset.theme = theme
+      } catch (e) {}
+      try {
+        if (document.documentElement.dataset.bilingual === 'true') {
+          var lang = localStorage.getItem('noxx-portfolio-lang')
+          if (lang === 'en' || lang === 'es') document.documentElement.lang = lang
+        }
+      } catch (e) {}
+</script>
+    <Head locale={locale} title={title} description={description} path={path} noindex={noindex} />
+    <Font cssVariable="--font-archivo" preload={[{ weight: '400' }, { weight: '700' }]} />
+    <Font cssVariable="--font-jetbrains-mono" />
+    <ClientRouter />
+  </head>
+  <body>
+    <a class="skip" href="#main">{t('skip')}</a>
+    <TopBar locale={locale} path={path} sections={sections} inPlaceLang={bilingual} />
+    <main id="main">
+      <slot />
+    </main>
+    <SiteFooter locale={locale} bilingual={bilingual} />
+  </body>
+</html>

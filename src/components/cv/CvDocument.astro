@@ -1,0 +1,555 @@
+---
+import { profile, displayName, skillText } from '../../data/profile'
+import { t as translate, type Locale } from '../../i18n/ui'
+
+interface Props {
+  locale: Locale
+}
+
+const { locale } = Astro.props
+const t = translate(locale)
+const bare = (url: string) => url.replace(/^https?:\/\//, '').replace(/\/$/, '')
+const pad = (n: number) => String(n).padStart(2, '0')
+
+const contact = [
+  profile.location[locale],
+  profile.email,
+  bare(profile.links.github),
+  profile.links.linkedin ? bare(profile.links.linkedin) : '',
+  bare(profile.links.site),
+].filter(Boolean)
+
+const hasOpenSource = profile.openSource.length > 0
+const order = ['summary', 'skills', 'projects', ...(hasOpenSource ? ['openSource'] : []), 'links']
+const n = (key: string) => pad(order.indexOf(key))
+
+const skillCount = profile.skills.reduce((acc, g) => acc + g.items.length, 0)
+---
+
+<article class="cv">
+  <header class="cv-head">
+    <h1>{displayName}</h1>
+    <p class="cv-role">{profile.role[locale]}</p>
+    <p class="cv-contact">{contact.join(' · ')}</p>
+  </header>
+
+  <section class="cv-sec">
+    <div class="cv-sec-head">
+      <span class="cv-n no-print" aria-hidden="true">{n('summary')}</span>
+      <h2>{t('cv.summary')}</h2>
+    </div>
+    <div class="cv-body">
+      <p class="cv-lede">{profile.summary[locale]}</p>
+    </div>
+  </section>
+
+  <section class="cv-sec">
+    <div class="cv-sec-head">
+      <span class="cv-n no-print" aria-hidden="true">{n('skills')}</span>
+      <h2>{t('cv.skills')}</h2>
+      <p class="cv-sec-meta no-print">
+        {pad(skillCount)} {t('home.stackEntries')} · {pad(profile.skills.length)} {t('home.stackGroups')}
+      </p>
+    </div>
+    <dl class="cv-rows">
+      {
+        profile.skills.map((g) => (
+          <div class="cv-row">
+            <dt>{g.group[locale]}<span class="cv-sep" aria-hidden="true">{': '}</span></dt>
+            <dd>{g.items.map((i) => skillText(i)[locale]).join(', ')}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </section>
+
+  <section class="cv-sec">
+    <div class="cv-sec-head">
+      <span class="cv-n no-print" aria-hidden="true">{n('projects')}</span>
+      <h2>{t('cv.projects')}</h2>
+    </div>
+    {
+      profile.projects.map((p) => (
+        <div class="cv-item">
+          <div class="cv-item-main">
+            <div class="cv-item-head">
+              <h3>{p.name}</h3>
+              <p class="cv-when">
+                {t('cv.independent')} · {p.date[locale]}
+              </p>
+            </div>
+            <p class="cv-text">
+              {p.tagline[locale]} {p.description[locale]}
+            </p>
+            <ul class="cv-points">
+              {p.highlights.map((h) => (
+                <li>{h[locale]}</li>
+              ))}
+            </ul>
+          </div>
+          <dl class="cv-rows cv-rows-tight">
+            <div class="cv-row">
+              <dt>{t('cv.technologies')}<span class="cv-sep" aria-hidden="true">{': '}</span></dt>
+              <dd>{p.stack.join(', ')}</dd>
+            </div>
+            {p.live && (
+              <div class="cv-row">
+                <dt>{t('cv.live')}<span class="cv-sep" aria-hidden="true">{': '}</span></dt>
+                <dd class="cv-url">{p.live}</dd>
+              </div>
+            )}
+            <div class="cv-row">
+              <dt>{t('cv.source')}<span class="cv-sep" aria-hidden="true">{': '}</span></dt>
+              <dd class="cv-url">{p.source}</dd>
+            </div>
+          </dl>
+        </div>
+      ))
+    }
+  </section>
+
+  {
+    hasOpenSource && (
+      <section class="cv-sec">
+        <div class="cv-sec-head">
+          <span class="cv-n no-print" aria-hidden="true">
+            {n('openSource')}
+          </span>
+          <h2>{t('cv.openSource')}</h2>
+          <p class="cv-sec-meta no-print">{pad(profile.openSource.length)}</p>
+        </div>
+        {profile.openSource.map((c) => (
+          <div class="cv-item">
+            <div class="cv-item-main">
+              <div class="cv-item-head">
+                <h3>
+                  {c.org}/{c.project}
+                </h3>
+                <p class="cv-when">
+                  {t('open.pr')} · {c.date[locale]} · {c.status[locale]}
+                </p>
+              </div>
+              <p class="cv-text">
+                {c.tagline[locale]} {c.title}: {c.files} {t('open.files')}, +{c.additions} −{c.deletions}, {c.language}.
+              </p>
+              <ul class="cv-points">
+                {c.highlights.map((h) => (
+                  <li>{h[locale]}</li>
+                ))}
+              </ul>
+            </div>
+            <dl class="cv-rows cv-rows-tight">
+              <div class="cv-row">
+                <dt>{t('cv.source')}<span class="cv-sep" aria-hidden="true">{': '}</span></dt>
+                <dd class="cv-url">{c.url}</dd>
+              </div>
+            </dl>
+          </div>
+        ))}
+      </section>
+    )
+  }
+
+  <section class="cv-sec cv-sec-last">
+    <div class="cv-sec-head">
+      <span class="cv-n no-print" aria-hidden="true">{n('links')}</span>
+      <h2>{t('cv.links')}</h2>
+    </div>
+    <dl class="cv-rows">
+      <div class="cv-row">
+        <dt>GitHub<span class="cv-sep" aria-hidden="true">{': '}</span></dt>
+        <dd class="cv-url">{profile.links.github}</dd>
+      </div>
+      <div class="cv-row">
+        <dt>{t('cv.portfolio')}<span class="cv-sep" aria-hidden="true">{': '}</span></dt>
+        <dd class="cv-url">{profile.links.site}</dd>
+      </div>
+      {
+        profile.links.linkedin && (
+          <div class="cv-row">
+            <dt>LinkedIn<span class="cv-sep" aria-hidden="true">{': '}</span></dt>
+            <dd class="cv-url">{profile.links.linkedin}</dd>
+          </div>
+        )
+      }
+      {
+        profile.email && (
+          <div class="cv-row">
+            <dt>{t('spec.email')}<span class="cv-sep" aria-hidden="true">{': '}</span></dt>
+            <dd class="cv-url">{profile.email}</dd>
+          </div>
+        )
+      }
+    </dl>
+  </section>
+</article>
+
+<style>
+  .cv {
+    font-size: 0.941rem;
+    line-height: 1.55;
+  }
+
+  .cv-head {
+    padding: 30px var(--pad) 26px;
+  }
+  .cv h1 {
+    font-size: clamp(2rem, 5.5vw, 2.824rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+  .cv-role {
+    margin-top: 12px;
+    font-size: 1.176rem;
+    font-weight: 500;
+  }
+  .cv-contact {
+    margin-top: 14px;
+    font-family: var(--font-jetbrains-mono);
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--muted);
+    overflow-wrap: anywhere;
+  }
+
+  .cv-sec {
+    border-top: 1px solid var(--line);
+  }
+  .cv-sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 13px var(--pad);
+    border-bottom: 1px solid var(--line);
+    background: var(--fill-soft);
+    font-family: var(--font-jetbrains-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .cv-n {
+    color: var(--accent-text);
+  }
+  .cv-sec-head h2 {
+    font: inherit;
+    letter-spacing: inherit;
+    color: var(--muted);
+  }
+  .cv-sec-meta {
+    margin-left: auto;
+    letter-spacing: 0.06em;
+    color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .cv-body {
+    padding: 18px var(--pad) 22px;
+  }
+  .cv-lede {
+    max-width: 68ch;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+
+  .cv-item {
+    padding: 18px var(--pad) 22px;
+  }
+  .cv-item + .cv-item {
+    border-top: 1px solid var(--line);
+  }
+  .cv-item-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 16px;
+  }
+  .cv h3 {
+    font-size: 1.176rem;
+  }
+  .cv-when {
+    font-family: var(--font-jetbrains-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .cv-text {
+    max-width: 68ch;
+    margin-top: 10px;
+    font-size: 0.8235rem;
+    line-height: 1.65;
+    color: var(--muted);
+    text-wrap: pretty;
+  }
+  .cv-points {
+    max-width: 68ch;
+    margin: 12px 0 0;
+    padding-left: 1.2em;
+    list-style: disc;
+    font-size: 0.8235rem;
+    line-height: 1.65;
+  }
+  .cv-points li + li {
+    margin-top: 5px;
+  }
+  .cv-points li::marker {
+    color: var(--faint);
+  }
+
+  .cv-rows {
+    margin: 0;
+  }
+  .cv-row {
+    display: grid;
+    grid-template-columns: 128px minmax(0, 1fr);
+    gap: 2px 14px;
+    padding: 10px var(--pad);
+    border-bottom: 1px solid var(--line);
+    transition: background-color 160ms ease;
+  }
+  .cv-row:last-child {
+    border-bottom: 0;
+  }
+  .cv-row:hover {
+    background: var(--fill-soft);
+  }
+  .cv-row dt {
+    font-family: var(--font-jetbrains-mono);
+    font-size: 11px;
+    line-height: 1.7;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .cv-row dd {
+    margin: 0;
+    font-size: 0.8235rem;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+  }
+  .cv-url {
+    font-family: var(--font-jetbrains-mono);
+    font-size: 12px;
+  }
+  .cv-sep {
+    display: none;
+  }
+
+  .cv-rows-tight {
+    margin-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+  .cv-rows-tight .cv-row {
+    grid-template-columns: 112px minmax(0, 1fr);
+    padding: 7px 0;
+  }
+  .cv-rows-tight .cv-row:hover {
+    background: none;
+  }
+
+  @media (max-width: 559px) {
+    .cv-row,
+    .cv-rows-tight .cv-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1px;
+    }
+    .cv-row dt {
+      line-height: 1.5;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    .cv-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 330px;
+      padding: 0;
+    }
+    .cv-item-main {
+      min-width: 0;
+      padding: 18px var(--pad) 22px;
+    }
+    .cv-rows-tight {
+      margin-top: 0;
+      border-top: 0;
+      border-left: 1px solid var(--line);
+    }
+    .cv-rows-tight .cv-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 3px;
+      padding: 11px var(--pad);
+      border-bottom: 1px solid var(--line);
+    }
+    .cv-rows-tight .cv-row:last-child {
+      border-bottom: 0;
+    }
+    .cv-rows-tight .cv-row:hover {
+      background: var(--fill-soft);
+    }
+  }
+
+  @media print {
+    .cv {
+      --text: #000;
+      --muted: #000;
+      --faint: #333;
+      --line: #000;
+      --line-strong: #000;
+      --accent: #000;
+      --accent-text: #000;
+      --fill: transparent;
+      --fill-soft: transparent;
+      --pad: 0;
+      color: #000;
+      font-size: 10.5pt;
+      line-height: 1.4;
+    }
+
+    .cv-head {
+      padding: 0;
+      break-after: avoid;
+    }
+    .cv h1 {
+      font-size: 19pt;
+    }
+    .cv-role {
+      margin-top: 2pt;
+      font-size: 12pt;
+    }
+    .cv-contact {
+      margin-top: 4pt;
+      font-family: inherit;
+      font-size: 10pt;
+      line-height: 1.35;
+      color: #333;
+    }
+
+    .cv-sec {
+      margin-top: 13pt;
+      border-top: 0;
+      break-inside: auto;
+    }
+    .cv-sec-head {
+      display: block;
+      padding: 0 0 3pt;
+      border-bottom: 0.75pt solid #000;
+      background: none;
+      font-family: inherit;
+      font-size: inherit;
+      letter-spacing: 0;
+      text-transform: none;
+      break-after: avoid;
+    }
+    .cv-sec-head h2 {
+      font-family: inherit;
+      font-size: 12pt;
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: 0;
+      text-transform: none;
+      color: #000;
+      break-after: avoid;
+    }
+
+    .cv-body,
+    .cv-item {
+      padding: 0;
+      margin-top: 6pt;
+    }
+    .cv-lede,
+    .cv-text,
+    .cv-points {
+      max-width: none;
+      color: #000;
+      orphans: 2;
+      widows: 2;
+    }
+
+    .cv-item {
+      display: block;
+      break-inside: avoid;
+    }
+    .cv-item-main {
+      display: block;
+      min-width: 0;
+      padding: 0;
+    }
+    .cv-item + .cv-item {
+      margin-top: 9pt;
+      border-top: 0;
+    }
+    .cv-item-head {
+      display: block;
+      break-after: avoid;
+    }
+    .cv h3 {
+      font-size: 11pt;
+      font-weight: 700;
+      break-after: avoid;
+    }
+    .cv-when {
+      font-family: inherit;
+      font-size: 10pt;
+      letter-spacing: 0;
+      text-transform: none;
+      color: #333;
+    }
+    .cv-text {
+      margin-top: 2pt;
+      font-size: 10.5pt;
+      line-height: 1.4;
+    }
+    .cv-points {
+      margin-top: 3pt;
+      font-size: 10.5pt;
+      line-height: 1.4;
+    }
+    .cv-points li + li {
+      margin-top: 1pt;
+    }
+
+    .cv-rows,
+    .cv-rows-tight {
+      margin: 0;
+      border-top: 0;
+      border-left: 0;
+    }
+    .cv-rows-tight {
+      margin-top: 2pt;
+    }
+    .cv-row,
+    .cv-rows-tight .cv-row,
+    .cv-rows-tight .cv-row:last-child {
+      display: block;
+      padding: 0;
+      border-bottom: 0;
+      break-inside: avoid;
+    }
+    .cv-row + .cv-row {
+      margin-top: 1pt;
+    }
+    .cv-row dt {
+      display: inline;
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: 700;
+      line-height: inherit;
+      letter-spacing: 0;
+      text-transform: none;
+      color: #000;
+    }
+    .cv-row dd {
+      display: inline;
+      font-size: inherit;
+      line-height: inherit;
+      color: #000;
+    }
+    .cv-url {
+      font-family: inherit;
+      font-size: inherit;
+    }
+    .cv-sep {
+      display: inline;
+    }
+  }
+</style>

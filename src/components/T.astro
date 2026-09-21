@@ -1,0 +1,13 @@
+---
+import type { L } from '../data/profile'
+
+interface Props {
+  text: L
+  as?: 'span' | 'strong' | 'em'
+}
+
+const { text, as = 'span' } = Astro.props
+const Tag = as
+---
+
+<Tag lang="en" data-l="en">{text.en}</Tag><Tag lang="es" data-l="es">{text.es}</Tag>
