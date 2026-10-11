@@ -14,7 +14,7 @@
   --selection: rgba(232, 71, 15, 0.14);
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
 
-  --shell: 1280px;
+  --shell: 1000px;
   --pad: 16px;
   --fill: color-mix(in oklab, var(--text) 3.5%, transparent);
   --fill-soft: color-mix(in oklab, var(--text) 1.8%, transparent);

@@ -13,9 +13,9 @@ tu LinkedIn o GitHub. Por eso el sitio y el CV salen del mismo archivo
 | 2 | Email en texto plano en el CV. Teléfono opcional. | Cumple (`noxxzeraa@proton.me`). Sin teléfono, que es opcional. |
 | 3 | Ubicación (ciudad, país) y URLs completas de GitHub, LinkedIn y portfolio. | Cumple (URLs completas). Ubicación: solo "Uruguay"; agregá la ciudad si querés. |
 | 4 | Títulos de sección estándar: Summary, Skills, Projects, Open source, Links (ES: Resumen, Habilidades, Proyectos, Código abierto, Enlaces). | Cumple. |
-| 5 | Título de puesto literal ("Frontend Developer" / "Desarrollador Frontend") debajo del nombre. | Cumple. |
+| 5 | Título de puesto literal ("Full Stack Developer" / "Desarrollador Full Stack") debajo del nombre. | Cumple. |
 | 6 | Tecnologías con nombre canónico: TypeScript, React, Three.js, Tailwind CSS, Astro, Vite, C++, Reverse engineering. | Cumple. |
-| 7 | Fechas en formato "Sep 2026" o "2026 – present" (ES: "sep 2026", "2026 – actualidad"). | Cumple. |
+| 7 | Fechas en formato "Sep 2026" o "Since Sep 2026" (ES: "sep 2026", "Desde sep 2026"). | Cumple. |
 | 8 | CV en una sola columna. Sin tablas, cuadros de texto, encabezados o pies de página, imágenes, íconos ni gráficos. Sin barras o porcentajes de skills. | Cumple. |
 | 9 | PDF con capa de texto real (se genera desde HTML con Chromium, `npm run render`). | Cumple. |
 | 10 | Sin emojis ni caracteres decorativos. | Cumple en el sitio y el CV. Tu bio de GitHub es solo "🎐": cambiala. |

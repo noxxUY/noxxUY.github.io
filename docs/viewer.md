@@ -4,8 +4,15 @@ The hero has a slot (`src/lib/hero.ts`) that renders a RenderWare DFF with three
 
 - three.js and the viewer (`src/lib/viewer.ts`) are imported only when the slot scrolls
   into view, so the first paint costs what it always did.
-- One model out of `src/data/models.ts` is picked at random per page load and **only that
-  one** is fetched, from `public/models/`.
+- Each page load picks, half and half, a GTA model or a Minecraft player out of
+  `src/data/models.ts`, and **only that one** is fetched, from `public/models/` or
+  `public/skins/`.
+- Minecraft players (`src/lib/mcplayer.ts`) are boxes unwrapped with the standard skin
+  layout, both layers, slim or wide arms, legacy 64x32 skins and an optional cape. They
+  are drawn hidden-line like the GTA models, with a line wherever the skin changes
+  colour standing in for the creases of a mesh. Skins are saved into
+  `public/skins/` from Mojang instead of fetched at runtime; to add one, drop the skin
+  (and cape) PNG there and add a line to `heroPlayers`.
 - `src/lib/rw/` is a trimmed port of the parser from the IMG Editor, geometry only — no
   textures, materials or submesh grouping — checked against 17,724 models from GTA III,
   Vice City and San Andreas with no difference in triangles, vertices or bounds.

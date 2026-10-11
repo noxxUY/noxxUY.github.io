@@ -12,7 +12,7 @@ export interface Project {
   formats: string[]
   stack: string[]
   live?: string
-  source: string
+  source?: string
   image?: string
   imageAlt?: L
 }
@@ -32,14 +32,6 @@ export interface Contribution {
   highlights: L[]
 }
 
-export interface FormatConstant {
-  fmt: string
-  bytes: string
-  hint?: string
-  ascii?: string
-  note: L
-}
-
 export interface SkillGroup {
   group: L
   items: (string | L)[]
@@ -49,19 +41,19 @@ export const profile = {
   alias: 'noxx',
   fullName: '',
   handle: 'noxxUY',
-  role: { en: 'Frontend Developer', es: 'Desarrollador Frontend' } satisfies L,
+  role: { en: 'Full Stack Developer', es: 'Desarrollador Full Stack' } satisfies L,
   roleLine: {
-    en: 'Frontend Developer. TypeScript, React and WebGL in the browser; C++ and reverse engineering underneath.',
-    es: 'Desarrollador Frontend. TypeScript, React y WebGL en el navegador; C++ y reverse engineering por debajo.',
+    en: 'I do frontend and backend on the web. I also like digging into how things work at a low level, with C, C++ and reverse engineering.',
+    es: 'Hago frontend y backend web. También me gusta investigar cómo funcionan las cosas a bajo nivel, con C, C++ y reverse engineering.',
   } satisfies L,
   summary: {
-    en: 'I build browser-only tools that open binary game formats: Minecraft worlds and GTA archives, parsed and rendered in 3D on the client, nothing uploaded. I am comfortable below the surface too: C++, reverse engineering with IDA Pro and undocumented file formats.',
-    es: 'Construyo herramientas que corren solo en el navegador y abren formatos binarios de juegos: mundos de Minecraft y archivos de GTA, parseados y renderizados en 3D en el cliente, sin subir nada. También me muevo cómodo por debajo: C++, reverse engineering con IDA Pro y formatos de archivo sin documentar.',
+    en: "Lately I've been making browser tools that open Minecraft worlds or GTA archives, showing them in 3D without uploading anything. I'm also building a co-op mod for GTA III.",
+    es: 'Últimamente estoy haciendo herramientas web que abren mundos de Minecraft o archivos de GTA, mostrándolos en 3D sin subir nada. También estoy haciendo un mod cooperativo para GTA III.',
   } satisfies L,
   location: { en: 'Uruguay', es: 'Uruguay' } satisfies L,
   countryCode: 'UY',
   timezone: 'UTC−3',
-  availability: { en: 'Open to remote work', es: 'Abierto a trabajo remoto' } satisfies L,
+  availability: { en: 'Open to remote work', es: 'Disponible para trabajo remoto' } satisfies L,
   email: 'noxxzeraa@proton.me',
   links: {
     github: 'https://github.com/noxxUY',
@@ -71,23 +63,114 @@ export const profile = {
   },
   // Shown until the GitHub fetch answers, and whenever it fails. Keep it evergreen: the
   // live line names the repo of your last push, this one has to stay true on any day.
-  now: {
-    en: 'Now: building browser tools.',
-    es: 'Ahora: construyendo herramientas.',
-  } satisfies L,
 
   projects: [
     {
+      id: 'coopiii',
+      name: 'CoopIII',
+      date: { en: 'Since Sep 2026', es: 'Desde sep 2026' },
+      tagline: {
+        en: 'Cooperative story mode multiplayer for GTA III.',
+        es: 'Multijugador cooperativo del modo historia de GTA III.',
+      },
+      description: {
+        en: 'Up to 8 players share one Liberty City and play the story together. One player starts a mission and everyone plays it with them. It hooks the retail gta3.exe directly instead of shipping a modified binary.',
+        es: 'Hasta 8 jugadores comparten la misma Liberty City y juegan la historia juntos. Uno arranca una misión y todos la juegan con él. Se engancha directo al gta3.exe original en lugar de distribuir un ejecutable modificado.',
+      },
+      highlights: [
+        {
+          en: 'Syncs players, vehicles, combat, traffic, police, the clock, the weather, pickups and garages.',
+          es: 'Sincroniza jugadores, vehículos, combate, tráfico, policía, la hora, el clima, los pickups y los garajes.',
+        },
+        {
+          en: 'Written from scratch against the original binary, reverse engineered with IDA Pro.',
+          es: 'Escrito desde cero sobre el ejecutable original, con reverse engineering en IDA Pro.',
+        },
+      ],
+      formats: [],
+      stack: ['C++', 'xmake', 'IDA Pro'],
+      live: 'https://coopiii.com',
+      source: 'https://github.com/noxxUY/CoopIII',
+      image: 'coopiii.png',
+      imageAlt: {
+        en: 'Two players in the same street of Liberty City, each one with a nametag over the other.',
+        es: 'Dos jugadores en la misma calle de Liberty City, cada uno con el nombre del otro encima.',
+      },
+    },
+    {
+      id: 'minevisor',
+      name: 'Minevisor',
+      date: { en: 'Since Aug 2026', es: 'Desde ago 2026' },
+      tagline: {
+        en: 'Minecraft Java worlds in the browser, in 3D.',
+        es: 'Mundos de Minecraft Java en el navegador, en 3D.',
+      },
+      description: {
+        en: 'Open a save folder and fly through the world in 3D, check the map, players, inventories, chunks and NBT. It can also move a player\'s inventory to another account. Everything is decoded on your machine, nothing gets uploaded.',
+        es: 'Abrís la carpeta de una partida y recorrés el mundo en 3D, con el mapa, los jugadores, los inventarios, los chunks y el NBT. También puede pasar el inventario de un jugador a otra cuenta. Todo se decodifica en tu máquina, no se sube nada.',
+      },
+      highlights: [
+        {
+          en: "Textures streamed from Mojang's CDN through a precomputed byte-offset index instead of bundling assets.",
+          es: 'Texturas servidas desde el CDN de Mojang mediante un índice precalculado de offsets en bytes, en lugar de empaquetar assets.',
+        },
+        {
+          en: 'Supports saves from Minecraft 1.0 onward, including the legacy terrain formats.',
+          es: 'Soporta partidas desde Minecraft 1.0, incluidos los formatos de terreno antiguos.',
+        },
+      ],
+      formats: ['.mca', '.dat', 'NBT'],
+      stack: ['TypeScript', 'Astro', 'React', 'Three.js', 'Tailwind CSS'],
+      live: 'https://minevisor.cc',
+      image: 'minevisor.webp',
+      imageAlt: {
+        en: 'Minevisor open on the demo world, with the 3D viewer over a village and the players and waypoints beside it.',
+        es: 'Minevisor abierto con el mundo de prueba, el visor 3D sobre una aldea y los jugadores y waypoints al costado.',
+      },
+    },
+    {
+      id: 'minevisor-live',
+      name: 'Minevisor Live',
+      date: { en: 'Oct 2026', es: 'oct 2026' },
+      tagline: {
+        en: 'A server plugin that streams a Minecraft server into Minevisor in real time.',
+        es: 'Un plugin de servidor que transmite un server de Minecraft a Minevisor en tiempo real.',
+      },
+      description: {
+        en: 'A plugin for Paper and Spigot, and a mod for Fabric. It runs a small web server inside the Minecraft server, so the browser connects straight to it with no backend in between. Players moving, blocks changing and inventories show up as they happen, and it can post to Discord.',
+        es: 'Un plugin para Paper y Spigot, y un mod para Fabric. Levanta un pequeño servidor web adentro del server de Minecraft, así el navegador se conecta directo sin ningún backend en el medio. Los jugadores moviéndose, los bloques que cambian y los inventarios aparecen en el momento, y puede publicar en Discord.',
+      },
+      highlights: [
+        {
+          en: 'One link per server, revocable, with the world seed never sent to viewers.',
+          es: 'Un link por server que se puede revocar, y la semilla del mundo nunca llega a quien mira.',
+        },
+        {
+          en: 'Discord announcements and a live status message, configured from in-game commands.',
+          es: 'Anuncios en Discord y un mensaje de estado en vivo, configurados con comandos dentro del juego.',
+        },
+      ],
+      formats: [],
+      stack: ['Java', 'Paper', 'Fabric', 'TypeScript'],
+      live: 'https://minevisor.cc/#live',
+      source: 'https://github.com/noxxUY/minevisor-live',
+      image: 'minevisor-live.png',
+      imageAlt: {
+        en: 'The /minevisor link command and a live feed of server events.',
+        es: 'El comando /minevisor link y un feed en vivo de los eventos del server.',
+      },
+    },
+    {
       id: 'img-editor',
       name: 'IMG Editor',
-      date: { en: 'Sep 2026 – present', es: 'sep 2026 – actualidad' },
+      date: { en: 'Since Sep 2026', es: 'Desde sep 2026' },
       tagline: {
         en: 'Browser-based IMG archive editor for GTA III, Vice City and San Andreas.',
-        es: 'Editor de archivos IMG de GTA III, Vice City y San Andreas que corre en el navegador.',
+        es: 'Editor de archivos IMG de GTA III, Vice City y San Andreas, en el navegador.',
       },
       description: {
         en: 'Opens the game archives and lets you browse, extract, replace, add, delete and rebuild entries, with a 3D preview of every DFF model and TXD texture. Saves in place through the File System Access API. Nothing leaves your machine.',
-        es: 'Abre los archivos del juego y permite explorar, extraer, reemplazar, agregar, borrar y reconstruir entradas, con vista previa 3D de cada modelo DFF y cada textura TXD. Guarda en el lugar mediante la File System Access API. Nada sale de tu máquina.',
+        es: 'Abre los archivos del juego y permite explorar, extraer, reemplazar, agregar, borrar y reconstruir entradas, con vista previa 3D de cada modelo DFF y cada textura TXD. Guarda los cambios sobre el mismo archivo con la File System Access API. Nada sale de tu máquina.',
       },
       highlights: [
         {
@@ -114,134 +197,45 @@ export const profile = {
       },
     },
     {
-      id: 'minevisor-workspace',
-      name: 'Minevisor Workspace',
-      date: { en: 'Aug 2026', es: 'ago 2026' },
+      id: 'remotepsp',
+      name: 'RemotePSP',
+      date: { en: 'Sep 2026', es: 'sep 2026' },
       tagline: {
-        en: 'Read a Minecraft Java world in the browser: map, 3D terrain, players, inventories, chunks and NBT.',
-        es: 'Lee un mundo de Minecraft Java en el navegador: mapa, terreno 3D, jugadores, inventarios, chunks y NBT.',
+        en: "Streams a PSP's screen to a PC over Wi-Fi.",
+        es: 'Transmite la pantalla de una PSP a la PC por Wi-Fi.',
       },
       description: {
-        en: 'Point it at a .minecraft save and it decodes region files and player data locally: a 2D map with player markers, a 3D voxel flythrough, side-by-side player stats, searchable inventories and raw chunk and NBT inspection. Inventories, experience and spawn points can be edited and saved back.',
-        es: 'Apuntalo a una partida guardada de .minecraft y decodifica los archivos de región y los datos de jugadores localmente: mapa 2D con marcadores de jugadores, vuelo 3D por vóxeles, comparación de estadísticas entre jugadores, inventarios con búsqueda e inspección de chunks y NBT en crudo. Inventarios, experiencia y puntos de aparición se pueden editar y guardar.',
+        en: 'A plugin running on the PSP captures the screen, compresses it and sends it over UDP, both in the menu and inside games. A small receiver on the PC shows it in a window you can capture with OBS.',
+        es: 'Un plugin que corre en la PSP captura la pantalla, la comprime y la manda por UDP, tanto en el menú como adentro de los juegos. Un receptor en la PC la muestra en una ventana que podés capturar con OBS.',
       },
       highlights: [
         {
-          en: "Textures streamed from Mojang's CDN through a precomputed byte-offset index instead of bundling assets.",
-          es: 'Texturas servidas desde el CDN de Mojang mediante un índice precalculado de offsets en bytes, en lugar de empaquetar assets.',
-        },
-        {
-          en: 'Supports saves from Minecraft 1.0 onward, including the legacy terrain formats.',
-          es: 'Soporta partidas desde Minecraft 1.0, incluidos los formatos de terreno antiguos.',
-        },
-        {
-          en: 'Runs entirely client-side: no uploads, no server.',
-          es: 'Corre completamente en el cliente: sin subidas, sin servidor.',
+          en: 'Lost packets are recovered over the PSP\'s weak 802.11b Wi-Fi.',
+          es: 'Recupera los paquetes perdidos en el Wi-Fi 802.11b de la PSP, que es muy flojo.',
         },
       ],
-      formats: ['.mca', '.dat', 'NBT'],
-      stack: ['TypeScript', 'Astro', 'React', 'Three.js', 'Tailwind CSS'],
-      live: 'https://minevisor.cc',
-      source: 'https://github.com/noxxUY/minevisor-workspace',
-      image: 'minevisor-workspace.png',
+      formats: [],
+      stack: ['C', 'PSP SDK', 'Python'],
+      source: 'https://github.com/noxxUY/RemotePSP',
+      image: 'remotepsp.png',
       imageAlt: {
-        en: 'Minevisor Workspace with the 3D viewer flying over a Minecraft world, waypoints listed beside it.',
-        es: 'Minevisor Workspace con el visor 3D sobrevolando un mundo de Minecraft y los waypoints al costado.',
-      },
-    },
-    {
-      id: 'minevisor-transfer',
-      name: 'Minevisor Transfer',
-      date: { en: 'Aug 2026', es: 'ago 2026' },
-      tagline: {
-        en: "Copy a Minecraft Java player's inventory between accounts, entirely in the browser.",
-        es: 'Copia el inventario de un jugador de Minecraft Java entre cuentas, completamente en el navegador.',
-      },
-      description: {
-        en: 'Moves the hotbar, main inventory, armor, offhand and ender chest from one account to another, offline to premium or the other way around. Resolves premium UUIDs from the Mojang API, derives offline ones locally, and writes new .dat files or straight into the world folder.',
-        es: 'Mueve la barra rápida, el inventario, la armadura, la mano secundaria y el cofre de ender de una cuenta a otra, de offline a premium o al revés. Resuelve UUIDs premium desde la API de Mojang, deriva los offline localmente y escribe archivos .dat nuevos o directo en la carpeta del mundo.',
-      },
-      highlights: [
-        {
-          en: 'Works between offline and premium accounts in both directions.',
-          es: 'Funciona entre cuentas offline y premium en ambas direcciones.',
-        },
-        {
-          en: 'Shares the NBT parsing core with Minevisor Workspace.',
-          es: 'Comparte el núcleo de parseo de NBT con Minevisor Workspace.',
-        },
-      ],
-      formats: ['.dat', 'NBT'],
-      stack: ['TypeScript', 'Astro', 'React', 'Tailwind CSS'],
-      live: 'https://minevisor.cc',
-      source: 'https://github.com/noxxUY/minevisor-transfer',
-      image: 'minevisor-transfer.png',
-      imageAlt: {
-        en: 'Minevisor Transfer: the players found in a world on the left, the destination account on the right.',
-        es: 'Minevisor Transfer: los jugadores encontrados en el mundo a la izquierda y la cuenta de destino a la derecha.',
+        en: 'The RemotePSP window on Windows showing the PSP menu.',
+        es: 'La ventana de RemotePSP en Windows mostrando el menú de la PSP.',
       },
     },
   ] satisfies Project[],
 
   openSource: [] as Contribution[],
 
-  formatConstants: [
-    {
-      fmt: '.img',
-      bytes: '56 45 52 32',
-      ascii: 'VER2',
-      note: { en: 'Version-2 archive header', es: 'Cabecera de archivo versión 2' },
-    },
-    {
-      fmt: '.dir',
-      bytes: '',
-      hint: '32 B/entry',
-      note: { en: 'No magic: a flat table of 32-byte records', es: 'Sin magic: tabla plana de registros de 32 bytes' },
-    },
-    {
-      fmt: '.dff',
-      bytes: '10 00 00 00',
-      note: { en: 'RenderWare clump section', es: 'Sección clump de RenderWare' },
-    },
-    {
-      fmt: '.txd',
-      bytes: '16 00 00 00',
-      note: { en: 'RenderWare texture dictionary', es: 'Diccionario de texturas de RenderWare' },
-    },
-    {
-      fmt: '.mca',
-      bytes: '00 00 10 00',
-      note: { en: 'Anvil sector size, 0x1000', es: 'Tamaño de sector de Anvil, 0x1000' },
-    },
-    {
-      fmt: '.dat',
-      bytes: '1f 8b',
-      note: { en: 'gzip around the player NBT', es: 'gzip alrededor del NBT del jugador' },
-    },
-    {
-      fmt: 'NBT',
-      bytes: '0a',
-      note: { en: 'TAG_Compound, the root tag', es: 'TAG_Compound, el tag raíz' },
-    },
-  ] satisfies FormatConstant[],
 
   skills: [
     {
       group: { en: 'Languages', es: 'Lenguajes' },
-      items: ['TypeScript', 'JavaScript', 'C++', 'HTML', 'CSS'],
+      items: ['TypeScript', 'JavaScript', 'Python', 'C', 'C++', 'HTML', 'CSS'],
     },
     {
-      group: { en: 'Frontend', es: 'Frontend' },
-      items: [
-        'React',
-        'Astro',
-        'Vite',
-        'Tailwind CSS',
-        'Three.js',
-        'WebGL',
-        'File System Access API',
-        'Origin Private File System',
-      ],
+      group: { en: 'Web', es: 'Web' },
+      items: ['React', 'Astro', 'Node.js', 'Vite', 'Tailwind CSS', 'Three.js', 'WebGL'],
     },
     {
       group: { en: 'Tooling', es: 'Herramientas' },
@@ -256,15 +250,13 @@ export const profile = {
           en: 'Binary file formats (RenderWare DFF/TXD, IMG, Minecraft Anvil/NBT)',
           es: 'Formatos binarios (RenderWare DFF/TXD, IMG, Minecraft Anvil/NBT)',
         },
-        { en: 'Game modding in C++ (GTA: San Andreas)', es: 'Modding de juegos en C++ (GTA: San Andreas)' },
+        { en: 'Game modding in C++ (GTA III, San Andreas)', es: 'Modding de juegos en C++ (GTA III, San Andreas)' },
       ],
     },
   ] satisfies SkillGroup[],
 }
 
 export const skillText = (item: string | L): L => (typeof item === 'string' ? { en: item, es: item } : item)
-
-export const constantFor = (format: string) => profile.formatConstants.find((c) => c.fmt === format)
 
 export const displayName = profile.fullName || profile.alias
 

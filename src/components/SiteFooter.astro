@@ -35,7 +35,6 @@ const bare = (url: string) => url.replace(/^https?:\/\//, '').replace(/\/+$/, ''
       <span>{bilingual ? <T text={both('footer.source')} /> : t('footer.source')}</span>
     </a>
 
-    <p class="eof mono" aria-hidden="true">EOF</p>
   </div>
 </footer>
 
@@ -54,7 +53,6 @@ const bare = (url: string) => url.replace(/^https?:\/\//, '').replace(/\/+$/, ''
     max-width: var(--shell);
     margin-inline: auto;
     padding: 16px var(--pad);
-    border-inline: 1px solid var(--line);
     font-size: 12px;
     color: var(--muted);
   }
@@ -98,15 +96,5 @@ const bare = (url: string) => url.replace(/^https?:\/\//, '').replace(/\/+$/, ''
   .link:hover .gh,
   .link:hover .arrow {
     color: var(--accent-text);
-  }
-  .eof {
-    margin-left: auto;
-    color: var(--faint);
-    letter-spacing: 0.14em;
-  }
-  @media (max-width: 639px) {
-    .eof {
-      display: none;
-    }
   }
 </style>

@@ -1,9 +1,11 @@
 
 import type * as THREE from 'three'
 import type { DffModel } from './rw/dff'
+import { buildPlayer, type PlayerSkin } from './mcplayer'
 
 export interface Viewer {
   show(model: DffModel, yaw?: number): void
+  showPlayer(skin: PlayerSkin): void
   clear(): void
   refresh(): void
   destroy(): void
@@ -13,7 +15,9 @@ const SPIN = 0.25
 const EDGE_ANGLE = 24
 const ORBIT = 0.008
 const PITCH_LIMIT = 1.15
-const ZOOM_MIN = 0.45
+// Below this the model's bounding sphere no longer fits the canvas and gets cut
+// off at its edges, so zooming in stops there.
+const ZOOM_MIN = 0.9
 const ZOOM_MAX = 2.6
 const SLOP = 8
 const VIEW = { yaw: 0.42, pitch: 0.14 }
@@ -132,7 +136,7 @@ export async function createViewer(canvas: HTMLCanvasElement): Promise<Viewer> {
   }
 
   const figure = buildFigure()
-  let owned: THREE.BufferGeometry[] = []
+  let owned: { dispose(): void }[] = []
   let fitRadius = figure.radius
   let fitDist = 4
   let zoom = 1
@@ -188,6 +192,19 @@ export async function createViewer(canvas: HTMLCanvasElement): Promise<Viewer> {
     releaseModel()
     owned = next
     mount(upright, box.radius)
+  }
+
+  // Minecraft players get the same hidden-line look, with lines where the skin
+  // changes colour standing in for the creases of a mesh.
+  function showPlayer(skin: PlayerSkin) {
+    const player = buildPlayer(T, skin, { solid: solidMat, edge: edgeMat, ghost: ghostMat })
+    const box = frameOf(player.min, player.max)
+    player.group.position.set(-box.center[0], -box.center[1], -box.center[2])
+    const holder = new T.Group()
+    holder.add(player.group)
+    releaseModel()
+    owned = player.owned
+    mount(holder, box.radius)
   }
 
   const boundsOf = (geoms: THREE.BufferGeometry[]) => {
@@ -364,6 +381,7 @@ export async function createViewer(canvas: HTMLCanvasElement): Promise<Viewer> {
 
   return {
     show,
+    showPlayer,
     clear,
     refresh,
     destroy() {

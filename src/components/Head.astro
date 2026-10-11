@@ -23,7 +23,7 @@ const person = {
   name: displayName,
   ...(profile.fullName ? { alternateName: profile.alias } : {}),
   jobTitle: profile.role[locale],
-  description: profile.summary[locale],
+  description: `${profile.roleLine[locale]} ${profile.summary[locale]}`,
   url: profile.links.site,
   image: ogImage,
   sameAs: [profile.links.github, profile.links.linkedin].filter(Boolean),

@@ -1,5 +1,5 @@
 
-import { heroModels } from '../data/models'
+import { heroModels, heroPlayers, type HeroPlayer } from '../data/models'
 import type { Viewer } from './viewer'
 
 let cleanup: (() => void) | null = null
@@ -32,6 +32,11 @@ export function initHero() {
     status.dataset.tris = String(triangles)
     status.textContent = `${game} · RW ${versionText} · ${triangles.toLocaleString(lang())} ${word('tris')}`
   }
+  const sayPlayer = (name: string) => {
+    delete status.dataset.game
+    status.dataset.player = name
+    status.textContent = `Minecraft · ${name}`
+  }
   const repaint = () => {
     if (status.dataset.game) {
       sayModel(status.dataset.game, status.dataset.version || '', Number(status.dataset.tris) || 0)
@@ -59,7 +64,34 @@ export function initHero() {
     return booting
   }
 
+  const image = (file: string) =>
+    new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image()
+      img.onload = () => resolve(img)
+      img.onerror = reject
+      img.src = `${import.meta.env.BASE_URL}skins/${file}`
+    })
+
+  const showPlayer = async (pick: HeroPlayer) => {
+    try {
+      const [v, skin, cape] = await Promise.all([
+        boot(),
+        image(pick.skin),
+        pick.cape ? image(pick.cape).catch(() => null) : Promise.resolve(null),
+      ])
+      if (!v || dead) return
+      v.showPlayer({ skin, cape, slim: pick.slim })
+      root.dataset.state = 'model'
+      sayPlayer(pick.name)
+    } catch {
+    }
+  }
+
   const showRandom = async () => {
+    // Half the time a Minecraft player, half the time a GTA ped.
+    if (heroPlayers.length && (!heroModels.length || Math.random() < 0.5)) {
+      return showPlayer(heroPlayers[Math.floor(Math.random() * heroPlayers.length)])
+    }
     const pick = heroModels[Math.floor(Math.random() * heroModels.length)]
     if (!pick) return
     try {

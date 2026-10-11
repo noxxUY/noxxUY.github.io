@@ -39,7 +39,7 @@ const skillCount = profile.skills.reduce((acc, g) => acc + g.items.length, 0)
       <h2>{t('cv.summary')}</h2>
     </div>
     <div class="cv-body">
-      <p class="cv-lede">{profile.summary[locale]}</p>
+      <p class="cv-lede">{profile.roleLine[locale]} {profile.summary[locale]}</p>
     </div>
   </section>
 
@@ -98,10 +98,12 @@ const skillCount = profile.skills.reduce((acc, g) => acc + g.items.length, 0)
                 <dd class="cv-url">{p.live}</dd>
               </div>
             )}
-            <div class="cv-row">
-              <dt>{t('cv.source')}<span class="cv-sep" aria-hidden="true">{': '}</span></dt>
-              <dd class="cv-url">{p.source}</dd>
-            </div>
+            {p.source && (
+              <div class="cv-row">
+                <dt>{t('cv.source')}<span class="cv-sep" aria-hidden="true">{': '}</span></dt>
+                <dd class="cv-url">{p.source}</dd>
+              </div>
+            )}
           </dl>
         </div>
       ))
