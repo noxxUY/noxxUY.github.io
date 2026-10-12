@@ -190,10 +190,10 @@ export const profile = {
       stack: ['TypeScript', 'React', 'Vite', 'Tailwind CSS', 'Three.js', 'Vitest'],
       live: 'https://noxxuy.github.io/img-editor/',
       source: 'https://github.com/noxxUY/img-editor',
-      image: 'img-editor.png',
+      image: 'img-editor.webp',
       imageAlt: {
-        en: "IMG Editor with San Andreas' gta3.img open and Cesar Vialpando rendered in the 3D viewer.",
-        es: "IMG Editor con el gta3.img de San Andreas abierto y Cesar Vialpando renderizado en el visor 3D.",
+        en: "IMG Editor with San Andreas' gta3.img open and Cesar Vialpando rendered with his textures in the 3D viewer.",
+        es: "IMG Editor con el gta3.img de San Andreas abierto y Cesar Vialpando con sus texturas en el visor 3D.",
       },
     },
     {
